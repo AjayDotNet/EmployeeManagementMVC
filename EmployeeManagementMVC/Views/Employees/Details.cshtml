@@ -1,0 +1,96 @@
+@model EmployeeManagementMVC.Models.Employee
+
+@{
+    ViewData["Title"] = "Employee Details";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Employee Profile</h2>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Back to List
+        </a>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">@Model.Name</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <!-- LEFT SIDE ICON -->
+                <div class="col-md-4 text-center">
+
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                         style="width:120px;height:120px;font-size:40px;font-weight:bold;">
+                        @Model.Name.Substring(0, 1).ToUpper()
+                    </div>
+
+                    <h5 class="mt-3">@Model.Name</h5>
+
+                    <span class="badge bg-info text-dark">
+                        @Model.Department
+                    </span>
+
+                </div>
+
+                <!-- RIGHT SIDE DETAILS -->
+                <div class="col-md-8">
+
+                    <table class="table table-borderless">
+
+                        <tr>
+                            <th>Name</th>
+                            <td>@Model.Name</td>
+                        </tr>
+
+                        <tr>
+                            <th>Department</th>
+                            <td>
+                                <span class="badge bg-info text-dark">
+                                    @Model.Department
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Salary</th>
+                            <td>₹ @Model.Salary</td>
+                        </tr>
+
+                    </table>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="d-flex gap-2 mt-3">
+
+                        <a asp-action="Edit"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-warning">
+                            Edit
+                        </a>
+
+                        <a asp-action="Delete"
+                           asp-route-id="@Model.Id"
+                           class="btn btn-danger">
+                            Delete
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

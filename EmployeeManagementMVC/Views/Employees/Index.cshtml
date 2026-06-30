@@ -1,0 +1,238 @@
+@model X.PagedList.IPagedList<EmployeeManagementMVC.Models.Employee>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Employee List";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Employee Dashboard</h2>
+
+        <a class="btn btn-primary" asp-action="Create">
+            + Add Employee
+        </a>
+    </div>
+
+    <!-- DASHBOARD CARDS -->
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+            <div class="card text-white bg-primary shadow-sm">
+                <div class="card-body">
+                    <h6>Total Employees</h6>
+                    <h2>@ViewBag.TotalEmployees</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-success shadow-sm">
+                <div class="card-body">
+                    <h6>Average Salary</h6>
+                    <h2>₹ @ViewBag.AvgSalary</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-warning shadow-sm">
+                <div class="card-body">
+                    <h6>Departments</h6>
+                    <h2>@ViewBag.DepartmentCount</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SEARCH BOX -->
+    <form method="get" asp-action="Index" class="mb-3">
+        <div class="input-group">
+
+            <input type="text"
+                   name="search"
+                   value="@Context.Request.Query["search"]"
+                   class="form-control"
+                   placeholder="Search by name..." />
+
+            <button class="btn btn-outline-primary" type="submit">
+                Search
+            </button>
+
+            <a href="/Employees" class="btn btn-outline-secondary">
+                Reset
+            </a>
+
+        </div>
+    </form>
+
+    <!-- TABLE -->
+    <div class="card shadow-sm">
+
+        <div class="card-body p-0">
+
+            <table class="table table-striped table-hover table-bordered align-middle mb-0">
+
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th class="text-end">Salary</th>
+                        <th class="text-center" style="width:220px;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody class="text-center">
+
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var emp in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@emp.Name</td>
+
+                                <td>
+                                    @{
+                                        string badgeClass = emp.Department switch
+                                        {
+                                            "HR" => "bg-primary",
+                                            "IT" => "bg-success",
+                                            "Finance" => "bg-warning text-dark",
+                                            "Sales" => "bg-danger",
+                                            "Marketing" => "bg-info text-dark",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+
+                                    <span class="badge @badgeClass">
+                                        @emp.Department
+                                    </span>
+                                </td>
+
+                                <td class="text-end">₹ @emp.Salary.ToString("N0")</td>
+
+                                <td>
+
+                                    <a class="btn btn-sm btn-warning"
+                                       asp-action="Edit"
+                                       asp-route-id="@emp.Id">
+                                        Edit
+                                    </a>
+
+                                    <a class="btn btn-sm btn-info text-white"
+                                       asp-action="Details"
+                                       asp-route-id="@emp.Id">
+                                        Details
+                                    </a>
+
+                                    <!-- DELETE BUTTON (MODAL TRIGGER) -->
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal"
+                                            data-id="@emp.Id"
+                                            data-name="@emp.Name">
+                                        Delete
+                                    </button>
+
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">
+                                No employees found
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-center mt-3">
+
+        @Html.PagedListPager(Model, page => Url.Action("Index", new
+        {
+            page,
+            search = Context.Request.Query["search"],
+            department = Context.Request.Query["department"]
+        }),
+        new PagedListRenderOptions
+        {
+            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            MaximumPageNumbersToDisplay = 5,
+            UlElementClasses = new[] { "pagination" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" }
+        })
+
+    </div>
+
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Are you sure you want to delete this employee?</p>
+                <h5 id="empName"></h5>
+            </div>
+
+            <div class="modal-footer">
+
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        Yes, Delete
+                    </button>
+                </form>
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL SCRIPT -->
+<script>
+    var deleteModal = document.getElementById('deleteModal');
+
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+
+        var button = event.relatedTarget;
+
+        var id = button.getAttribute('data-id');
+        var name = button.getAttribute('data-name');
+
+        document.getElementById('empName').innerText = name;
+
+        document.getElementById('deleteForm').action = '/Employees/Delete/' + id;
+    });
+</script>

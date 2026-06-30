@@ -1,0 +1,15 @@
+﻿@page
+@model EmployeeManagementMVC.Areas.Identity.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container mt-4">
+    <h2>User Profile</h2>
+
+    <div class="card p-3 mt-3">
+        <p><strong>Full Name:</strong> @Model.UserData.FullName</p>
+        <p><strong>Username:</strong> @Model.UserData.UserName</p>
+        <p><strong>Email:</strong> @Model.UserData.Email</p>
+    </div>
+</div>
